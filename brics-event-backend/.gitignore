@@ -99,3 +99,20 @@ playwright-report/
 # OS specific
 # ===============================
 *.orig
+
+
+# ===============================
+# Secrets / Credentials (IMPORTANT)
+# ===============================
+# Firebase / Google Cloud Keys
+src/config/serviceAccountKey.json
+serviceAccountKey.json
+*.key.json
+
+
+# General Secrets
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
