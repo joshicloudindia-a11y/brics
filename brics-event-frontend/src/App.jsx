@@ -1,11 +1,12 @@
 // frontend/src/App.jsx
 
-import React from "react"; 
+import React, { useEffect } from "react"; 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import axios from "axios"; 
+
+import { useRegisterSW } from 'virtual:pwa-register/react';
 
 import ErrorBoundary from "./components/common/ErrorBoundary.jsx";
 
@@ -45,6 +46,44 @@ const ProfileWrapper = () => {
 };
 
 const App = () => {
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegistered(r) {
+      console.log("✅ PWA Service Worker Registered Successfully");
+    },
+    onRegisterError(error) {
+      console.error("❌ SW Registration Error:", error);
+    },
+  });
+
+  useEffect(() => {
+    if (needRefresh) {
+      toast.info(
+        <div className="flex flex-col gap-2">
+          <span className="font-bold text-sm">New App Version Available! 🚀</span>
+          <button 
+            onClick={() => updateServiceWorker(true)}
+            className="bg-blue-600 text-white text-xs py-1 px-3 rounded shadow-sm hover:bg-blue-700 transition"
+          >
+            Update Now
+          </button>
+        </div>,
+        { closeOnClick: false, autoClose: false }
+      );
+    }
+  }, [needRefresh, updateServiceWorker]);
+
+  useEffect(() => {
+    const handleInstallPrompt = (e) => {
+      e.preventDefault();
+      console.log("📲 App is ready to be installed on home screen");
+    };
+
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
+  }, []);
 
   return (
     <Provider store={store}>
