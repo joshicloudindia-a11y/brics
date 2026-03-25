@@ -1,0 +1,49 @@
+[
+  {
+    "id": "evt_001",
+    "event_code": "BRICS2026",
+    "name": "BRICS India Summit 2026",
+    "description": "Official BRICS Summit hosted by India",
+    "start_date": "2026-02-15",
+    "end_date": "2026-02-18",
+    "start_time": "10:00",
+    "end_time": "18:00",
+    "event_type": "In-person",
+    "source_language": "English",
+    "capacity": 5000,
+    "is_active": true,
+    "registration_open": true
+  },
+
+  {
+    "id": "evt_002",
+    "event_code": "TECH2025",
+    "name": "Global Tech Expo 2025",
+    "description": "International technology and innovation expo",
+    "start_date": "2025-11-10",
+    "end_date": "2025-11-12",
+    "start_time": "09:00",
+    "end_time": "17:00",
+    "event_type": "Hybrid",
+    "source_language": "English",
+    "capacity": 2000,
+    "is_active": true,
+    "registration_open": true
+  },
+
+  {
+    "id": "evt_003",
+    "event_code": "EDU2025",
+    "name": "International Education Conference 2025",
+    "description": "Global forum on education, policy and innovation",
+    "start_date": "2025-08-20",
+    "end_date": "2025-08-21",
+    "start_time": "10:00",
+    "end_time": "16:00",
+    "event_type": "Virtual",
+    "source_language": "English",
+    "capacity": 10000,
+    "is_active": true,
+    "registration_open": false
+  }
+]
