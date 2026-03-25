@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react"; 
-import { ArrowLeft, Lock, Mail, Check, Download, X } from "lucide-react"; 
+import { Lock, Mail, Check, Download, X } from "lucide-react"; 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { sendLoginOtp, verifyLoginOtp } from "../../services/auth";
@@ -9,10 +9,9 @@ import logo from "../../assets/images/logo1.svg";
 import vector2 from "../../assets/images/vector2.svg";
 
 const slides = [
-  "https://d2jiw2zrmmyqt8.cloudfront.net/wp-content/uploads/2025/12/25151015/Sustainability-2048x1365.jpg",
-  "https://d2jiw2zrmmyqt8.cloudfront.net/wp-content/uploads/2025/12/29160230/business-people-silhouettes-against-orange-sky-with-planter-network-sketch-near-it-elements-this-image-furnished-by-nasa-toned-image-1-2048x1306.jpg",
-  "https://d2jiw2zrmmyqt8.cloudfront.net/wp-content/uploads/2025/12/25150901/Innovation.jpg",
-  "https://d2jiw2zrmmyqt8.cloudfront.net/wp-content/uploads/2025/12/25152306/Resilience-2-scaled.jpg",
+  "/01.svg",
+  "/02.svg",
+  "/03.svg",
 ];
 
 const VisitorLogin = () => {
@@ -47,7 +46,6 @@ const VisitorLogin = () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") console.log("User accepted PWA install");
     setDeferredPrompt(null);
     setShowInstallBtn(false);
   };
@@ -114,86 +112,78 @@ const VisitorLogin = () => {
   };
 
   return (
-    <div className="bg-gradient-orange lg:bg-white w-full flex flex-col lg:flex-row overflow-hidden relative">
+    <div className="bg-[#f2f4f7] lg:bg-white w-full min-h-screen flex flex-col lg:flex-row relative overflow-x-hidden overflow-y-auto">
       
       {showInstallBtn && (
         <div className="fixed top-0 left-0 w-full z-[100] animate-in slide-in-from-top duration-500">
-          <div className="bg-[#1F4788] text-white px-4 py-3 flex items-center justify-between shadow-lg border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="bg-white p-1 rounded-md hidden sm:block">
-                <img src={logo} alt="icon" className="h-6 w-6" />
+          <div className="bg-[#1F4788] text-white px-4 py-3 flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded hidden sm:block">
+                <img src={logo} alt="icon" className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold leading-none">BRICS India 2026 App</span>
-                <span className="text-[10px] opacity-80 mt-1">Install for a seamless mobile experience & notifications</span>
+                <span className="text-xs font-bold leading-none">BRICS 2026 App</span>
+                <span className="text-[10px] opacity-80">Install for best experience</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setShowInstallBtn(false)} 
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <X size={18} />
-              </button>
-              <button 
-                onClick={handleInstallClick}
-                className="bg-[#F4C430] text-[#1F4788] font-bold text-xs px-5 py-2 rounded-lg flex items-center gap-2 shadow-md hover:bg-[#eab308] transition-all"
-              >
-                <Download size={14} /> INSTALL
+              <button onClick={() => setShowInstallBtn(false)} className="p-1"><X size={16} /></button>
+              <button onClick={handleInstallClick} className="bg-[#F4C430] text-[#1F4788] font-bold text-[10px] px-3 py-1.5 rounded-md flex items-center gap-1">
+                <Download size={12} /> INSTALL
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className={`flex justify-center items-center w-full lg:w-[60%] lg:h-screen relative transition-all duration-300 ${showInstallBtn ? 'pt-14 lg:pt-0' : ''}`}>
-        <div className="w-full h-[360px] sm:h-[420px] lg:h-full flex flex-col items-center justify-center bg-gradient-orange relative sm:px-8 pt-4 lg:pt-0">
-          <div className="fixed lg:absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 z-40">
-            <img src={vector2} alt="art" className="rotate-[90deg]" />
-          </div>
+      <div className={`hidden lg:flex flex-col justify-center items-center lg:w-[55%] lg:min-h-screen relative bg-[#FFF9F2] transition-all duration-300 ${showInstallBtn ? 'pt-16 lg:pt-0' : ''}`}>
+        
+        <div className="absolute bottom-10 left-0 w-64 h-64 opacity-20 pointer-events-none">
+          <img src={vector2} alt="art" className="w-full h-full object-contain" />
+        </div>
 
-          <div className="w-full max-w-[320px] sm:max-w-[480px] lg:max-w-[650px] aspect-[16/9] rounded-[16px] overflow-hidden relative bg-gray-200 shadow-lg border-4 border-white/20">
+        <div className="w-full h-full flex flex-col items-center justify-center relative px-8 z-10">
+          <div className="w-full max-w-[600px] aspect-[16/10] rounded-2xl overflow-hidden relative shadow-lg bg-white">
             {slides.map((img, index) => (
               <img
                 key={img}
                 src={img}
-                alt="Slide"
+                alt={`Slide ${index + 1}`}
                 onError={(e) => { e.target.src = "https://via.placeholder.com/800x500/1F4788/FFFFFF?text=BRICS+India+2026"; }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
               />
             ))}
           </div>
-
-          <div className="flex gap-3 mt-4">
+          
+          <div className="flex gap-2 mt-6">
             {slides.map((_, index) => (
-              <span key={index} className={`h-[3px] w-[24px] rounded-full transition-all duration-300 ${index === currentSlide ? "bg-[#1F4788] w-[32px]" : "bg-[#D0D5DD]"}`} />
+              <span key={index} className={`h-[4px] rounded-full transition-all duration-300 ${index === currentSlide ? "bg-[#1F4788] w-[30px]" : "bg-[#D0D5DD] w-[16px]"}`} />
             ))}
           </div>
 
-          <div className="w-[90%] max-w-[520px] mt-4 text-center">
-            <p className="text-base sm:text-lg lg:text-3xl tracking-wide leading-snug lg:leading-[40px] font-bold text-[#1F4788]">
+          <div className="w-[90%] max-w-[500px] mt-6 text-center">
+            <p className="text-[28px] leading-[36px] font-bold text-[#1F4788]">
               Building for Resilience, Innovation, Cooperation and Sustainability
             </p>
-          </div>
-
-          <div className="fixed lg:absolute bottom-0 left-0 right-0 w-full h-[4px] flex z-50">
-            <span className="flex-1 bg-[#1F4788]" /><span className="flex-1 bg-[#F4C430]" /><span className="flex-1 bg-[#f69434]" /><span className="flex-1 bg-[#2FA84F]" /><span className="flex-1 bg-[#E63946]" />
           </div>
         </div>
       </div>
 
-      <div className={`flex flex-col justify-start lg:justify-center items-center sm:px-6 lg:px-10 w-full lg:w-[40%] lg:min-h-screen py-6 pb-8 lg:pb-0 lg:py-0 rounded-t-3xl lg:rounded-none shadow-2xl lg:shadow-none relative bg-white transition-all duration-300 ${showInstallBtn ? 'mt-4 lg:mt-0' : ''}`}>
-        <div className="w-full max-w-md sm:max-w-lg lg:max-w-none lg:px-16 bg-white lg:bg-transparent p-6 sm:p-8 lg:p-0">
-          <div className="text-center mb-6">
-            <div className="flex justify-center items-center gap-3 mb-4">
-              <img src={import.meta.env.VITE_BRICS_LOGO_URL || logo} alt="BRICS India 2026" className="h-14 sm:h-20" />
-            </div>
-            <h1 className="text-lg sm:text-2xl font-semibold text-[#101828] py-2">Login to your Account</h1>
-          </div>
+      <div className={`flex flex-col items-center justify-start lg:justify-center w-full lg:w-[45%] bg-[#FAF5F0] lg:bg-white min-h-screen relative ${showInstallBtn ? 'pt-16 lg:pt-0' : ''}`}>
+        
+        <div className="w-full flex justify-center items-center gap-4 pt-10 pb-6 lg:pt-0 lg:pb-8">
+          <img src="/04.svg" alt="Govt of India" className="h-12 lg:h-16 object-contain" />
+          <div className="h-10 w-[1px] bg-gray-300 hidden lg:block"></div>
+          <img src={import.meta.env.VITE_BRICS_LOGO_URL || logo} alt="BRICS India 2026" className="h-12 lg:h-16 object-contain" />
+        </div>
 
-          <div className="text-left space-y-5">
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
+        <div className="w-full max-w-md px-6 py-10 pb-40 lg:pb-10 bg-white rounded-t-[40px] lg:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.05)] lg:shadow-none flex-1 lg:flex-none">
+          
+          <h1 className="text-xl lg:text-[22px] font-bold text-center text-[#101828] mb-8">Login to your Account</h1>
+
+          <div className="space-y-6">
+            <div className="text-left">
+              <label className="block text-sm font-semibold text-[#344054] mb-2">Email</label>
               <input
                 type="email"
                 value={email}
@@ -201,23 +191,24 @@ const VisitorLogin = () => {
                 onChange={(e) => { setEmail(e.target.value); if (isValidEmail) setEmailError(""); }}
                 onKeyPress={(e) => e.key === "Enter" && !otpSent && !loading && handleSendOtp()}
                 placeholder="Enter your Email"
-                className="w-full h-[48px] px-4 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#1F4788] focus:border-transparent outline-none disabled:bg-gray-50 transition-all"
+                className="w-full h-[46px] px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#1F4788] focus:border-transparent outline-none disabled:bg-gray-50 transition-all placeholder:text-gray-400"
               />
-              {emailError && <p className="text-xs text-red-500 mt-1 font-medium">{emailError}</p>}
+              {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
             </div>
 
             {!otpSent ? (
               <button 
                 onClick={handleSendOtp} 
                 disabled={!isValidEmail || loading} 
-                className={`w-full h-[48px] rounded-lg font-bold text-white transition-all ${!isValidEmail || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1F4788] hover:bg-[#163463] shadow-md active:scale-[0.98]'}`}
+                className={`w-full h-[46px] rounded-lg font-medium text-white transition-all shadow-sm active:scale-[0.98] ${!isValidEmail || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1F4788] hover:bg-[#163463]'}`}
               >
                 {loading ? "Sending..." : "Send OTP"}
               </button>
             ) : (
-              <div className="space-y-6 animate-in fade-in duration-500">
-                <p className="text-sm text-[#6F7D94]">Enter the 6 digit OTP sent to your email ID</p>
-                <div className="flex justify-between gap-2">
+              <div className="space-y-5 animate-in fade-in duration-500">
+                <p className="text-sm text-[#475467]">Enter the 6 digit OTP sent to your email ID</p>
+                
+                <div className="flex justify-between gap-2 sm:gap-3">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <input
                       key={index}
@@ -236,35 +227,42 @@ const VisitorLogin = () => {
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Backspace") {
-                          if (!otp[index] && index > 0) otpInputsRef.current[index - 1]?.focus();
-                          else { const newOtp = otp.split(""); newOtp[index] = ""; setOtp(newOtp.join("")); }
-                        } else if (e.key === "Enter" && isValidOtp && !loading) handleVerifyOtp();
+                        if (e.key === "Backspace" && !otp[index] && index > 0) otpInputsRef.current[index - 1]?.focus();
+                        else if (e.key === "Enter" && isValidOtp && !loading) handleVerifyOtp();
                       }}
-                      className="w-full h-[52px] rounded-lg border border-gray-300 text-center text-lg font-bold text-[#101828] focus:ring-2 focus:ring-[#1F4788] outline-none"
+                      className="w-[45px] sm:w-[50px] h-[50px] rounded-lg border border-gray-300 text-center text-lg font-bold text-[#101828] focus:ring-2 focus:ring-[#1F4788] outline-none"
                     />
                   ))}
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">Didn't get the code?</span>
-                  {timer > 0 ? (
-                    <span className="text-[#1F4788] font-medium">Resend in {Math.floor(timer/60)}:{(timer%60).toString().padStart(2,"0")}</span>
-                  ) : (
-                    <button onClick={handleResendOtp} className="text-[#1F4788] font-bold underline hover:text-blue-800 transition-colors">Resend OTP</button>
-                  )}
+                
+                <div className="flex justify-end items-center text-xs mt-2">
+                    <span className="text-[#667085]">
+                        {timer > 0 ? `Resend OTP in 00:${(timer%60).toString().padStart(2,"0")}` : 
+                        <button onClick={handleResendOtp} className="text-[#1F4788] font-bold">Resend OTP</button>}
+                    </span>
                 </div>
+
                 <button 
-                  onClick={handleVerifyOtp} 
-                  disabled={!isValidOtp || loading} 
-                  className={`w-full h-[48px] rounded-lg font-bold text-white shadow-lg active:scale-[0.98] transition-all ${!isValidOtp || loading ? 'bg-gray-400' : 'bg-[#1F4788] hover:bg-[#163463]'}`}
+                    onClick={handleVerifyOtp} 
+                    disabled={!isValidOtp || loading} 
+                    className={`w-full h-[46px] rounded-lg font-medium text-white shadow-sm active:scale-[0.98] transition-all mt-4 ${!isValidOtp || loading ? 'bg-[#98A2B3]' : 'bg-[#1F4788] hover:bg-[#163463]'}`}
                 >
-                  {loading ? "Verifying..." : "Verify & Continue"}
+                    {loading ? "Verifying..." : "Verify & Continue"}
                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      <div className="fixed bottom-0 left-0 w-full flex h-[6px] z-50 pointer-events-none">
+        <span className="flex-1 bg-[#1F4788]" />
+        <span className="flex-1 bg-[#F4C430]" />
+        <span className="flex-1 bg-[#f69434]" />
+        <span className="flex-1 bg-[#2FA84F]" />
+        <span className="flex-1 bg-[#E63946]" />
+      </div>
+
     </div>
   );
 };
