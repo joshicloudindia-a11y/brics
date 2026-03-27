@@ -179,18 +179,19 @@ const VisitorLogin = () => {
 
         <div className="w-full max-w-md px-6 py-10 pb-40 lg:pb-10 bg-white rounded-t-[40px] lg:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.05)] lg:shadow-none flex-1 lg:flex-none">
           
-          <h1 className="text-xl lg:text-[22px] font-bold text-center text-[#101828] mb-8">Login to your Account</h1>
+          <h1 className="text-xl lg:text-[22px] font-bold text-center text-[#101828] mb-4">Login to your Account</h1>
+          <p className="text-sm lg:text-[12px] text-center text-[#101828] mb-6">Secure access to summit updates, schedules, resources, and member collaboration platform. Stay connected with global economic leaders.</p>
 
           <div className="space-y-6">
             <div className="text-left">
-              <label className="block text-sm font-semibold text-[#344054] mb-2">Email</label>
+              <label className="block text-sm font-semibold text-[#344054] mb-2">E-mail Address</label>
               <input
                 type="email"
                 value={email}
                 disabled={otpSent}
                 onChange={(e) => { setEmail(e.target.value); if (isValidEmail) setEmailError(""); }}
                 onKeyPress={(e) => e.key === "Enter" && !otpSent && !loading && handleSendOtp()}
-                placeholder="Enter your Email"
+                placeholder="Enter Your E-mail Address"
                 className="w-full h-[46px] px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#1F4788] focus:border-transparent outline-none disabled:bg-gray-50 transition-all placeholder:text-gray-400"
               />
               {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
