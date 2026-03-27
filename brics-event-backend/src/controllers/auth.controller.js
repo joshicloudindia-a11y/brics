@@ -708,7 +708,12 @@ export const updateMyProfile = async (req, res) => {
         );
         console.log("✅ Backend se push notification send ho gaya!");
       } catch (pushErr) {
-        console.error("❌ Auto-Push Firebase Error:", pushErr.message || pushErr);
+        if (pushErr.message.includes('Requested entity was not found') || pushErr.code === 'messaging/registration-token-not-registered') {
+           console.warn(`⚠️ Token expired for user ${userId}. Clearing token from DB.`);
+           await User.findOneAndUpdate({ id: userId }, { $unset: { fcm_token: "" } });
+        } else {
+           console.error("❌ Auto-Push Firebase Error:", pushErr.message || pushErr);
+        }
       }
     } else {
       console.log("⚠️ PUSH FAILED: User ke pass fcm_token nahi hai DB mein!");
@@ -937,6 +942,10 @@ export const updateUserProfile = async (req, res) => {
           "An administrator has updated your profile details. Log in to review the changes."
         );
       } catch (pushErr) {
+        if (pushErr.message.includes('Requested entity was not found') || pushErr.code === 'messaging/registration-token-not-registered') {
+           console.warn(`⚠️ Token expired for target user ${targetUserId}. Clearing token from DB.`);
+           await User.findOneAndUpdate({ id: targetUserId }, { $unset: { fcm_token: "" } });
+        }
         console.warn("FCM Notification failed but profile saved:", pushErr.message);
       }
     }

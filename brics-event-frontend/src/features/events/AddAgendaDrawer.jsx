@@ -151,10 +151,11 @@ const AddAgendaDrawer = ({
       const response = await api.get(`/api/events/${actualEventId}/users`);
       const rawDelegates = Array.isArray(response.data) ? response.data : [];
       
-      // Filter out DAO, Event Manager, and Superadmin roles
+      // 🔥 FIX 3: Filter out DAO, Event Manager, Superadmin AND standard Delegates 
+      // (Only fetching actual Speakers if mixed in the same table, otherwise relying on fetchSpeakers)
       const delegatesArray = rawDelegates.filter(delegate => {
-        const roleName = delegate?.role.toUpperCase() || '';
-        return !['DAO', 'EVENT MANAGER', 'SUPER ADMIN'].includes(roleName);
+        const roleName = delegate?.role?.toUpperCase() || '';
+        return !['DAO', 'EVENT MANAGER', 'SUPER ADMIN', 'DELEGATE'].includes(roleName);
       });
       
       setDelegates(delegatesArray);
@@ -378,7 +379,8 @@ const AddAgendaDrawer = ({
           return;
         }
 
-        const result = await createAgendas(sessionId, payload);
+        // 🔥 FIX 1: Explicitly wrap the array inside an { agendas: payload } object to prevent 400 Bad Request
+        const result = await createAgendas(sessionId, { agendas: payload });
         toast.success(`${agendaItems.length} agenda item(s) added successfully`);
         if (onAgendaAdded) onAgendaAdded(result);
         await fetchAgendas();
@@ -826,7 +828,6 @@ const AddAgendaDrawer = ({
                         </div>
                       )}
 
-                      {/* Action Buttons - Edit mode only */}
                       {isBeingEdited && (
                         <div className="flex justify-end gap-3 pt-3 mt-3 border-t border-blue-200">
                           <button
@@ -854,12 +855,10 @@ const AddAgendaDrawer = ({
                                 };
 
                                 if (sessionId) {
-                                  // For existing event sessions - API call
                                   await updateAgenda(agenda._id || agenda.id, payload);
                                   toast.success('Agenda updated successfully');
                                   await fetchAgendas();
                                 } else {
-                                  // For local agendas (new session) - update via callback
                                   const updatedAgenda = { ...editingAgendaData, ...payload };
                                   if (onAgendaAdded) {
                                     onAgendaAdded(updatedAgenda, true, index);
@@ -887,7 +886,6 @@ const AddAgendaDrawer = ({
               );
             })}
 
-            {/* 2. Render Forms - Always visible */}
             {agendaItems.map((item, index) => {
               const showRemoveBtn = true;
               const hasConnectingLine = index < agendaItems.length - 1;
@@ -897,10 +895,8 @@ const AddAgendaDrawer = ({
                   key={item.id}
                   className="relative pl-8 pb-5"
                 >
-                  {/* Timeline dot */}
                   <div className="absolute left-[3px] top-5 w-[7px] h-[7px] bg-[#003B73] rounded-full z-10" />
 
-                  {/* Vertical connecting line ONLY if not the last item */}
                   {hasConnectingLine && (
                     <div className="absolute left-[6px] top-6 bottom-[-16px] w-[1px] bg-gray-200" />
                   )}
@@ -1068,7 +1064,6 @@ const AddAgendaDrawer = ({
               );
             })}
 
-            {/* Add More Agenda link aligned neatly - Always visible */}
             <div className="pl-8 pt-2 pb-4">
               <button
                 type="button"
@@ -1081,7 +1076,6 @@ const AddAgendaDrawer = ({
           </div>
         </div>
 
-        {/* Footer - Always visible for adding new agendas */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 flex-shrink-0 bg-white z-10">
           <button
             type="button"

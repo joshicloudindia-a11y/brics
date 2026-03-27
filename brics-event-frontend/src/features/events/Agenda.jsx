@@ -13,11 +13,13 @@ import {
 import { toast } from "react-toastify";
 import { getSessionAgendas, deleteAgenda } from "../../services/agenda";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useQueryClient } from "@tanstack/react-query"; 
 import AddAgendaDrawer from "./AddAgendaDrawer";
 import ConfirmModal from "../../components/common/ConfirmModal";
 
 const Agenda = ({ sessionId, sessionData, eventId }) => {
   const { data: currentUser } = useCurrentUser();
+  const queryClient = useQueryClient(); 
   const [agendas, setAgendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addAgendaOpen, setAddAgendaOpen] = useState(false);
@@ -26,7 +28,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
   const [agendaToDelete, setAgendaToDelete] = useState(null);
   const [expandedDates, setExpandedDates] = useState({});
 
-  // Check user role permissions
   const userRole = currentUser?.role?.name?.toUpperCase();
   const canEdit = ["SUPER ADMIN", "EVENT ADMIN", "SESSION MANAGER"].includes(userRole);
   const canDelete = ["SUPER ADMIN", "EVENT ADMIN"].includes(userRole);
@@ -44,7 +45,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
       const agendasArray = Array.isArray(data) ? data : data?.agendas || data?.data || [];
       setAgendas(agendasArray);
 
-      // Auto-expand all dates by default
       const dates = getGroupedAgendas(agendasArray);
       const expanded = {};
       Object.keys(dates).forEach((date) => {
@@ -60,24 +60,17 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
   };
 
   const getGroupedAgendas = (agendaList) => {
-    // Group agendas by session date (since agendas only have time, not date)
     const grouped = {};
-    
-    // Use session date as the grouping key
     let sessionDate = null;
     
     if (sessionData) {
-      // Try to get date from session start_time or startTime
       const sessionStartTime = sessionData.start_time || sessionData.startTime || sessionData.date;
       if (sessionStartTime) {
-        // If it's a full ISO string, extract date
         if (sessionStartTime.includes("T")) {
           sessionDate = sessionStartTime.split("T")[0];
         } else if (sessionStartTime.includes("-") && sessionStartTime.length === 10) {
-          // If it's already YYYY-MM-DD format
           sessionDate = sessionStartTime;
         } else {
-          // Try to parse as date
           const parsed = new Date(sessionStartTime);
           if (!isNaN(parsed.getTime())) {
             sessionDate = parsed.toISOString().split("T")[0];
@@ -86,16 +79,13 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
       }
     }
     
-    // If no valid session date found, use today's date
     if (!sessionDate) {
       sessionDate = new Date().toISOString().split("T")[0];
     }
     
-    // Group all agendas under the session date
     if (agendaList.length > 0) {
       grouped[sessionDate] = [...agendaList];
       
-      // Sort agenda items by start time
       grouped[sessionDate].sort((a, b) => {
         const timeA = a.start_time || a.startTime || "";
         const timeB = b.start_time || b.startTime || "";
@@ -118,7 +108,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
 
   const formatTime = (timeString) => {
     if (!timeString) return "";
-    // Extract time part from "2026-03-10T10:00" or "10:00"
     const timePart = timeString.includes("T") ? timeString.split("T")[1] : timeString;
     const [hours, minutes] = timePart.split(":");
     const hour = parseInt(hours);
@@ -150,7 +139,8 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
     try {
       await deleteAgenda(agendaToDelete._id || agendaToDelete.id);
       toast.success("Agenda deleted successfully");
-      fetchAgendas();
+      await fetchAgendas(); // Fetch local
+      queryClient.invalidateQueries(["sessionAgendas"]); // 🔥 Trigger global refresh
       setDeleteConfirmOpen(false);
       setAgendaToDelete(null);
     } catch (err) {
@@ -159,8 +149,9 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
     }
   };
 
-  const handleAgendaAdded = () => {
-    fetchAgendas();
+  const handleAgendaAdded = async () => {
+    await fetchAgendas(); // Fetch local changes
+    queryClient.invalidateQueries(["sessionAgendas"]); // 🔥 Auto-refresh queries everywhere
     setAddAgendaOpen(false);
     setEditAgenda(null);
   };
@@ -214,7 +205,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Add Button */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800">Session Agenda</h3>
@@ -233,8 +223,7 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
         )}
       </div>
 
-      {/* Timeline View - Date-wise Grouping */}
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
         {dateKeys.map((date) => (
           <div key={date} className="border rounded-lg overflow-hidden">
             {/* Date Header */}
@@ -276,7 +265,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
                         </span>
                       </div>
                       
-                      {/* Action Buttons */}
                       {(canEdit || canDelete) && (
                         <div className="flex items-center gap-1">
                           {canEdit && (
@@ -301,19 +289,16 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
                       )}
                     </div>
 
-                    {/* Title */}
                     <h4 className="text-base font-semibold text-gray-900 mb-2">
                       {agenda.title}
                     </h4>
 
-                    {/* Description */}
                     {agenda.description && (
                       <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                         {agenda.description}
                       </p>
                     )}
 
-                    {/* Speakers */}
                     {agenda.speakers && agenda.speakers.length > 0 && (
                       <div className="mt-4">
                         <p className="text-sm font-semibold text-gray-700 mb-3">
@@ -337,7 +322,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
                                 key={idx} 
                                 className="inline-flex items-center gap-2.5 bg-[#e3f2fd] text-gray-700 rounded-full pl-1.5 pr-4 py-1.5"
                               >
-                                {/* Speaker Photo */}
                                 <div className="w-9 h-9 rounded-full bg-blue-600 overflow-hidden flex-shrink-0">
                                   {photoUrl ? (
                                     <img 
@@ -354,7 +338,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
                                   )}
                                 </div>
                                 
-                                {/* Speaker Info */}
                                 <div className="flex flex-col min-w-0 max-w-[200px]">
                                   <span className="text-[13px] font-semibold leading-tight truncate">
                                     {speakerName}
@@ -372,7 +355,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
                       </div>
                     )}
 
-                    {/* Divider (except for last item) */}
                     {index !== groupedAgendas[date].length - 1 && (
                       <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
                     )}
@@ -384,7 +366,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
         ))}
       </div>
 
-      {/* Add/Edit Agenda Drawer */}
       <AddAgendaDrawer
         open={addAgendaOpen}
         onClose={() => {
@@ -398,7 +379,6 @@ const Agenda = ({ sessionId, sessionData, eventId }) => {
         editAgenda={editAgenda}
       />
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         open={deleteConfirmOpen}
         onClose={() => {
